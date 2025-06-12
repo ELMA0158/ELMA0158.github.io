@@ -137,59 +137,79 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 3000);
         });
     }
-    function initCollaboratorScroller() {
-        if (window.innerWidth <= 768) return;
+function initCollaboratorScroller() {
+    let isDragging = false;
+    let startX;
+    let scrollLeft;
+    let rafId;
+    let isPaused = false;
 
-        let isDragging = false;
-        let startX;
-        let scrollLeft;
-        let rafId;
-        let isPaused = false;
-
-        const autoScroll = () => {
-            if (!isDragging && !isPaused) {
-                container.scrollLeft += 0.7;
-                if (container.scrollLeft >= track.scrollWidth / 3) {
-                    container.scrollLeft = 0;
-                }
+    const autoScroll = () => {
+        if (!isDragging && !isPaused) {
+            container.scrollLeft += 0.7;
+            if (container.scrollLeft >= track.scrollWidth / 3) {
+                container.scrollLeft = 0;
             }
-            rafId = requestAnimationFrame(autoScroll);
-        };
+        }
+        rafId = requestAnimationFrame(autoScroll);
+    };
 
-        container.addEventListener('mouseenter', () => { isPaused = true; });
-        container.addEventListener('mouseleave', () => {
-            isPaused = false;
-            isDragging = false;
-            container.style.cursor = 'grab';
-            container.style.userSelect = 'auto';
-        });
+    container.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1) return;
+        isDragging = true;
+        startX = e.touches[0].pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+        isPaused = true;
+        container.style.cursor = 'grabbing';
+    });
 
-        container.addEventListener('mousedown', (e) => {
-            if (e.button !== 0) return;
-            isDragging = true;
-            startX = e.pageX - container.offsetLeft;
-            scrollLeft = container.scrollLeft;
-            container.style.cursor = 'grabbing';
-            container.style.userSelect = 'none';
-        });
+    container.addEventListener('touchend', () => {
+        isDragging = false;
+        isPaused = false;
+        container.style.cursor = 'grab';
+    });
 
-        container.addEventListener('mouseup', () => {
-            isDragging = false;
-            container.style.cursor = 'grab';
-            container.style.userSelect = 'auto';
-        });
+    container.addEventListener('touchmove', (e) => {
+        if (!isDragging || e.touches.length > 1) return;
+        e.preventDefault();
+        const x = e.touches[0].pageX - container.offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+    });
+    container.addEventListener('mouseenter', () => { isPaused = true; });
+    container.addEventListener('mouseleave', () => {
+        isPaused = false;
+        isDragging = false;
+        container.style.cursor = 'grab';
+        container.style.userSelect = 'auto';
+    });
 
-        container.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            e.preventDefault();
-            const x = e.pageX - container.offsetLeft;
-            const walk = (x - startX) * 2;
-            container.scrollLeft = scrollLeft - walk;
-        });
+    container.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        isDragging = true;
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+        container.style.cursor = 'grabbing';
+        container.style.userSelect = 'none';
+    });
 
-        autoScroll();
-        window.addEventListener('unload', () => cancelAnimationFrame(rafId));
-    }
+    container.addEventListener('mouseup', () => {
+        isDragging = false;
+        container.style.cursor = 'grab';
+        container.style.userSelect = 'auto';
+    });
+
+    container.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+    });
+
+    autoScroll();
+    window.addEventListener('unload', () => cancelAnimationFrame(rafId));
+}
     
     generateAvatars();
     initCollaboratorScroller();
