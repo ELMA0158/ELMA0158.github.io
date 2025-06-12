@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GFP_B - Android Terminal Beautifier</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="lang-switcher">
+            <button class="lang-btn" id="langBtn">EN</button>
+        </div>
+        
+        <section class="hero">
+            <h1 class="title">GFP_B</h1>
+            <p class="subtitle" data-translate="subtitle">基于Termux的安卓自动化美化工具</p>
+            
+            <div class="collaborators">
+                <div class="section-header">
+                    <h2 class="section-title" data-translate="collaborators_title">合作者</h2>
+                    <p class="collaborators-subtitle" data-translate="collaborators_subtitle">感谢他们在新手工具教学和群组管理方面作出的贡献</p>
+                </div>                
+                <div class="collaborators-container" id="collaboratorsContainer">
+                    <div class="collaborators-track" id="collaboratorsTrack">
+                        </div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="content-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon"><i class="fas fa-download"></i></div>
+                    <h2 class="card-title" data-translate="installation_title">轻松安装</h2>
+                </div>
+                
+                <p data-translate="installation_desc">简单三步即可开始使用GFP_B的强大功能</p>
+                
+                <div class="install-steps">
+                    <div class="step" id="step1">
+                        <div class="step-number">1</div>
+                        <div class="step-title" data-translate="step1_title">安装ZeroTermux</div>
+                        <div class="step-desc" data-translate="step1_desc">从GitHub获取最新版本</div>
+                    </div>
+                    
+                    <div class="step" id="step2">
+                        <div class="step-number">2</div>
+                        <div class="step-title" data-translate="step2_title">运行安装命令</div>
+                        <div class="step-desc" data-translate="step2_desc">点击复制一键安装命令</div>
+                    </div>
+                    
+                    <div class="step" id="step3">
+                        <div class="step-number">3</div>
+                        <div class="step-title" data-translate="step3_title">开始使用</div>
+                        <div class="step-desc" data-translate="step3_desc">执行GFP_B命令开始使用</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon"><i class="fas fa-comments"></i></div>
+                    <h2 class="card-title" data-translate="community_title">加入社群</h2>
+                </div>
+                
+                <p data-translate="community_desc">获取最新更新和技术支持</p>
+                <a href="https://t.me/GFP_B" class="telegram-btn" target="_blank">
+                    <i class="fab fa-telegram-plane"></i> 
+                    <span data-translate="telegram_btn">@GFP_B Telegram频道</span>
+                </a>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon"><i class="fas fa-heart"></i></div>
+                    <h2 class="card-title" data-translate="opensource_title">完全免费与开源</h2>
+                </div>
+                
+                <p data-translate="opensource_desc">GFP_B 是一个完全公益免费的开源工具</p>
+                <div class="free-badge">
+                    <i class="fas fa-star"></i> 
+                    <span data-translate="free_badge">永久免费 · 永久开源</span>
+                </div>
+                
+                <div class="project-links">
+                    <a href="https://github.com/ELMA0158/GFP_B/tree/main" class="project-link" target="_blank">
+                        <i class="fab fa-github"></i>
+                        <div class="link-content">
+                            <div class="link-title" data-translate="project_link">工具项目地址</div>
+                            <div class="link-url">https://github.com/ELMA0158/GFP_B/tree/main</div>
+                        </div>
+                    </a>
+                    
+                    <a href="https://github.com/ELMA0158/GFP_B_SourceCode" class="project-link" target="_blank">
+                        <i class="fas fa-code"></i>
+                        <div class="link-content">
+                            <div class="link-title" data-translate="source_link">工具开源地址</div>
+                            <div class="link-url">https://github.com/ELMA0158/GFP_B_SourceCode</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="copy-notification" id="copyNotification">
+        <i class="fas fa-check-circle"></i> 
+        <span id="copyNotificationText" data-translate="copy_notification">安装命令已复制到剪贴板！</span>
+    </div>
+    <div class="gfp_b-watermark"></div>
+    <script src="script.js"></script>
+</body>
+</html>
