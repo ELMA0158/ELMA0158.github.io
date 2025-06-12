@@ -138,6 +138,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 function initCollaboratorScroller() {
+    const track = document.getElementById('collaboratorsTrack');
+    const container = document.getElementById('collaboratorsContainer');
+    
+    if (window.innerWidth <= 768) {
+        track.classList.add('mobile-scroll');
+        return;
+    }
     let isDragging = false;
     let startX;
     let scrollLeft;
@@ -154,28 +161,6 @@ function initCollaboratorScroller() {
         rafId = requestAnimationFrame(autoScroll);
     };
 
-    container.addEventListener('touchstart', (e) => {
-        if (e.touches.length > 1) return;
-        isDragging = true;
-        startX = e.touches[0].pageX - container.offsetLeft;
-        scrollLeft = container.scrollLeft;
-        isPaused = true;
-        container.style.cursor = 'grabbing';
-    });
-
-    container.addEventListener('touchend', () => {
-        isDragging = false;
-        isPaused = false;
-        container.style.cursor = 'grab';
-    });
-
-    container.addEventListener('touchmove', (e) => {
-        if (!isDragging || e.touches.length > 1) return;
-        e.preventDefault();
-        const x = e.touches[0].pageX - container.offsetLeft;
-        const walk = (x - startX) * 2;
-        container.scrollLeft = scrollLeft - walk;
-    });
     container.addEventListener('mouseenter', () => { isPaused = true; });
     container.addEventListener('mouseleave', () => {
         isPaused = false;
