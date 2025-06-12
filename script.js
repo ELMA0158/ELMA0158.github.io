@@ -141,15 +141,12 @@ function initCollaboratorScroller() {
     const track = document.getElementById('collaboratorsTrack');
     const container = document.getElementById('collaboratorsContainer');
     
-    if (window.innerWidth <= 768) {
-        track.classList.add('mobile-scroll');
-        return;
-    }
     let isDragging = false;
     let startX;
     let scrollLeft;
     let rafId;
     let isPaused = false;
+    let isMobile = window.innerWidth <= 768;
 
     const autoScroll = () => {
         if (!isDragging && !isPaused) {
@@ -161,6 +158,54 @@ function initCollaboratorScroller() {
         rafId = requestAnimationFrame(autoScroll);
     };
 
+    container.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1) return;
+        isDragging = true;
+        isPaused = true;
+        startX = e.touches[0].pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+        container.style.cursor = 'grabbing';
+    });
+
+    container.addEventListener('touchmove', (e) => {
+        if (!isDragging || e.touches.length > 1) return;
+        e.preventDefault();
+        const x = e.touches[0].pageX - container.offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+    });
+
+    container.addEventListener('touchend', () => {
+        isDragging = false;
+        isPaused = false;
+        container.style.cursor = 'grab';
+        if (isMobile) {
+            let startTime = Date.now();
+            const initialVelocity = (container.scrollLeft - scrollLeft) / 100;
+            let lastPos = container.scrollLeft;
+            
+            const inertiaScroll = () => {
+                const elapsed = Date.now() - startTime;
+                if (elapsed > 1000) return;
+                const deceleration = 0.95;
+                const velocity = initialVelocity * Math.pow(deceleration, elapsed / 50);
+                container.scrollLeft += velocity;
+                if (container.scrollLeft <= 0) {
+                    container.scrollLeft = 0;
+                    return;
+                }
+                if (container.scrollLeft >= track.scrollWidth - container.offsetWidth) {
+                    container.scrollLeft = track.scrollWidth - container.offsetWidth;
+                    return;
+                }
+                if (Math.abs(velocity) < 0.1) return;
+                
+                requestAnimationFrame(inertiaScroll);
+            };
+            
+            requestAnimationFrame(inertiaScroll);
+        }
+    });
     container.addEventListener('mouseenter', () => { isPaused = true; });
     container.addEventListener('mouseleave', () => {
         isPaused = false;
@@ -195,7 +240,6 @@ function initCollaboratorScroller() {
     autoScroll();
     window.addEventListener('unload', () => cancelAnimationFrame(rafId));
 }
-    
     generateAvatars();
     initCollaboratorScroller();
     

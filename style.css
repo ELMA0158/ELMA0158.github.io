@@ -666,8 +666,23 @@ body {
     width: max-content;
 }
 
+@keyframes mobile-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.collaborators-track.mobile-scroll {
+    animation: mobile-scroll 40s linear infinite;
+    width: max-content;
+}
+
 @media (max-width: 768px) {
     .collaborators-container {
         overflow: hidden;
+        -webkit-overflow-scrolling: touch; 
+    }
+    
+    .collaborators-track.mobile-scroll {
+        animation-play-state: running;
     }
 }
