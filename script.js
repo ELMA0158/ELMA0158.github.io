@@ -102,6 +102,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 collaborator.appendChild(img);
                 collaborator.appendChild(innerGlow);
                 track.appendChild(collaborator);
+                
+                collaborator.addEventListener('click', () => {
+                    const wasSelected = collaborator.classList.contains('selected');
+                    document.querySelectorAll('.collaborator.selected').forEach(c => {
+                        c.classList.remove('selected');
+                    });
+                    if (!wasSelected) {
+                        collaborator.classList.add('selected');
+                    }
+                });
             });
         }
     }
@@ -141,6 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let rafId;
         let isPaused = false;
         let animationSpeed = 0.5;
+        let dragThreshold = 5;
+        let hasDragged = false;
 
         const setPosition = (x) => {
             track.style.transform = `translateX(${x}px)`;
@@ -159,38 +171,49 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const onDragStart = (clientX) => {
+            hasDragged = false;
             isDragging = true;
             isPaused = true;
             startX = clientX;
             startTranslateX = currentX;
             container.style.cursor = 'grabbing';
             track.style.transition = 'none';
+            cancelAnimationFrame(rafId);
         };
         
         const onDragMove = (clientX) => {
             if (!isDragging) return;
             const walk = clientX - startX;
+            if(Math.abs(walk) > dragThreshold) {
+                hasDragged = true;
+            }
             currentX = startTranslateX + walk;
             setPosition(currentX);
         };
         
         const onDragEnd = () => {
+            if (!isDragging) return;
             isDragging = false;
             isPaused = false;
             container.style.cursor = 'grab';
             track.style.transition = '';
-            cancelAnimationFrame(rafId);
             rafId = requestAnimationFrame(autoScroll);
         };
 
-        container.addEventListener('mousedown', (e) => onDragStart(e.pageX), { passive: true });
-        container.addEventListener('mousemove', (e) => onDragMove(e.pageX), { passive: true });
+        container.addEventListener('mousedown', (e) => onDragStart(e.pageX));
+        container.addEventListener('mousemove', (e) => onDragMove(e.pageX));
         container.addEventListener('mouseup', onDragEnd);
         container.addEventListener('mouseleave', onDragEnd);
         
         container.addEventListener('touchstart', (e) => onDragStart(e.touches[0].clientX), { passive: true });
         container.addEventListener('touchmove', (e) => onDragMove(e.touches[0].clientX), { passive: true });
         container.addEventListener('touchend', onDragEnd);
+        
+        container.addEventListener('click', (e) => {
+            if(hasDragged) {
+                e.stopPropagation();
+            }
+        }, true);
         
         container.addEventListener('mouseenter', () => { isPaused = true; });
         container.addEventListener('mouseleave', () => { if(!isDragging) isPaused = false; });
