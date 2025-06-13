@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let rafId;
         let scrollChunkWidth = 0;
 
-        const RESUME_DELAY = 500;
+        const RESUME_DELAY = 1000;
         const ANIMATION_SPEED = 0.5;
         const DRAG_THRESHOLD = 5;
 
