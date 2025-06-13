@@ -53,7 +53,7 @@ body {
     padding: 8px 20px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
     overflow: hidden;
 }
@@ -64,20 +64,32 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 0;
+    height: 100%;
     background: linear-gradient(45deg, var(--quantum), var(--pulse));
     opacity: 0.15;
-    transition: all 0.4s ease;
+    transition: opacity 0.4s ease;
     z-index: -1;
+}
+
+.lang-btn::after {
+    content: '';
+    position: absolute;
+    top: -5px; right: -5px; bottom: -5px; left: -5px;
+    border-radius: 30px;
+    box-shadow: 0 5px 15px rgba(74, 61, 255, 0.3);
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: -2;
 }
 
 .lang-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(74, 61, 255, 0.3);
+}
+.lang-btn:hover::after {
+    opacity: 1;
 }
 
 .lang-btn:hover::before {
-    height: 100%;
     opacity: 0.25;
 }
 
@@ -109,7 +121,7 @@ body {
     margin: 0 auto;
     padding: 0 15px;
     opacity: 0.9;
-    transition: all 0.4s ease;
+    transition: transform 0.4s ease, opacity 0.4s ease, text-shadow 0.4s ease;
 }
 
 .title:hover + .subtitle {
@@ -155,7 +167,7 @@ body {
     width: 80px;
     height: 3px;
     background: linear-gradient(90deg, var(--quantum), var(--pulse));
-    transition: all 0.3s ease;
+    transition: width 0.3s ease, background 0.3s ease;
 }
 
 .section-title:hover::after {
@@ -203,6 +215,7 @@ body {
     gap: 15px;
     padding: 15px 0;
     user-select: none;
+    will-change: transform;
 }
 
 .collaborator {
@@ -213,22 +226,36 @@ body {
     position: relative;
     transform-origin: center;
     flex-shrink: 0;
+    transition: transform 0.2s ease;
     will-change: transform;
-    transition: all 0.2s ease;
 }
 
 .collaborator img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: all 0.4s ease;
+    transition: transform 0.4s ease;
     pointer-events: none;
+}
+
+.collaborator::after {
+    content: '';
+    position: absolute;
+    top: -10px; right: -10px; bottom: -10px; left: -10px;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(74, 61, 255, 0.6);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: -1;
 }
 
 .collaborator:hover {
     transform: translateY(-8px) scale(1.05);
-    box-shadow: 0 10px 30px rgba(74, 61, 255, 0.6);
     z-index: 10;
+}
+
+.collaborator:hover::after {
+    opacity: 1;
 }
 
 .collaborator:hover img {
@@ -260,14 +287,28 @@ body {
     padding: 30px;
     position: relative;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    will-change: transform, box-shadow;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    will-change: transform, border-color;
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px; bottom: -20px; left: -20px;
+    border-radius: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: -2;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     border-color: rgba(74, 61, 255, 0.3);
+}
+
+.card:hover::after {
+    opacity: 1;
 }
 
 .card::before {
@@ -278,7 +319,7 @@ body {
     width: 100%;
     height: 3px;
     background: linear-gradient(90deg, var(--quantum), var(--pulse));
-    transition: all 0.4s ease;
+    transition: height 0.4s ease, opacity 0.4s ease;
 }
 
 .card:hover::before {
@@ -304,7 +345,7 @@ body {
     align-items: center;
     justify-content: center;
     color: var(--photon);
-    transition: all 0.4s ease;
+    transition: transform 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
 }
 
 .card:hover .card-icon {
@@ -317,7 +358,7 @@ body {
     font-size: 1.4rem;
     font-weight: 700;
     color: #fff;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease;
 }
 
 .card:hover .card-title {
@@ -343,9 +384,19 @@ body {
     display: flex;
     flex-direction: column;
     border: 1px solid rgba(100, 100, 200, 0.1);
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), background 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     will-change: transform;
     cursor: pointer;
+}
+.step::after {
+    content: '';
+    position: absolute;
+    top: -15px; right: -15px; bottom: -15px; left: -15px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(74, 61, 255, 0.3);
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: -2;
 }
 
 .step::before {
@@ -354,10 +405,10 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 0;
+    height: 100%;
     background: linear-gradient(45deg, var(--quantum), var(--pulse));
-    opacity: 0.1;
-    transition: all 0.4s ease;
+    opacity: 0;
+    transition: opacity 0.4s ease;
     z-index: -1;
 }
 
@@ -365,12 +416,13 @@ body {
     transform: translateY(-8px) scale(1.05);
     background: rgba(30, 30, 60, 0.7);
     border-color: var(--quantum);
-    box-shadow: 0 15px 35px rgba(74, 61, 255, 0.3);
     z-index: 1;
+}
+.step:hover::after {
+    opacity: 1;
 }
 
 .step:hover::before {
-    height: 100%;
     opacity: 0.2;
 }
 
@@ -379,7 +431,7 @@ body {
     font-weight: 900;
     color: var(--photon);
     margin-bottom: 10px;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .step:hover .step-number {
@@ -391,7 +443,7 @@ body {
     font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 5px;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease, transform 0.3s ease;
     color: #fff;
 }
 
@@ -403,7 +455,7 @@ body {
 .step-desc {
     font-size: 0.95rem;
     opacity: 0.8;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .step:hover .step-desc {
@@ -426,12 +478,23 @@ body {
     border-radius: 10px;
     text-decoration: none;
     color: var(--starlight);
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), background 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     border: 1px solid rgba(100, 100, 200, 0.1);
     will-change: transform;
     position: relative;
     overflow: hidden;
     z-index: 1;
+}
+
+.project-link::after {
+    content: '';
+    position: absolute;
+    top: -15px; right: -15px; bottom: -15px; left: -15px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(74, 61, 255, 0.3);
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: -2;
 }
 
 .project-link::before {
@@ -440,10 +503,10 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 0;
+    height: 100%;
     background: linear-gradient(45deg, var(--quantum), var(--pulse));
-    opacity: 0.1;
-    transition: all 0.4s ease;
+    opacity: 0;
+    transition: opacity 0.4s ease;
     z-index: -1;
 }
 
@@ -451,12 +514,13 @@ body {
     transform: translateY(-8px) scale(1.05);
     background: rgba(30, 30, 60, 0.7);
     border-color: var(--quantum);
-    box-shadow: 0 15px 35px rgba(74, 61, 255, 0.3);
     z-index: 1;
+}
+.project-link:hover::after{
+    opacity: 1;
 }
 
 .project-link:hover::before {
-    height: 100%;
     opacity: 0.2;
 }
 
@@ -465,7 +529,7 @@ body {
     margin-right: 15px;
     color: var(--photon);
     min-width: 30px;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .project-link:hover i {
@@ -481,7 +545,7 @@ body {
     font-weight: 700;
     color: #fff;
     margin-bottom: 5px;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .project-link:hover .link-title {
@@ -493,7 +557,7 @@ body {
     font-size: 0.9rem;
     opacity: 0.8;
     word-break: break-all;
-    transition: all 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .project-link:hover .link-url {
@@ -512,11 +576,22 @@ body {
     border-radius: 50px;
     font-weight: 600;
     margin-top: 15px;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
     overflow: hidden;
     z-index: 1;
     will-change: transform;
+}
+
+.telegram-btn::after {
+    content: '';
+    position: absolute;
+    top: -15px; right: -15px; bottom: -15px; left: -15px;
+    border-radius: 60px;
+    box-shadow: 0 15px 35px rgba(0, 136, 204, 0.5);
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: -2;
 }
 
 .telegram-btn::before {
@@ -525,19 +600,23 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 0;
+    height: 100%;
     background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-    transition: all 0.4s ease;
+    opacity: 0;
+    transition: opacity 0.4s ease;
     z-index: -1;
 }
 
 .telegram-btn:hover {
     transform: translateY(-8px) scale(1.08);
-    box-shadow: 0 15px 35px rgba(0, 136, 204, 0.5);
+}
+.telegram-btn:hover::after {
+    opacity: 1;
 }
 
 .telegram-btn:hover::before {
     height: 100%;
+    opacity: 1;
 }
 
 .free-badge {
@@ -548,9 +627,17 @@ body {
     display: inline-block;
     backdrop-filter: blur(5px);
     margin-top: 15px;
-    animation: glow 2s infinite alternate;
-    transition: all 0.4s ease;
+    position: relative;
+    transition: transform 0.4s ease, background 0.4s ease;
     cursor: default;
+}
+.free-badge::after {
+    content: '';
+    position: absolute;
+    top: -5px; right: -5px; bottom: -5px; left: -5px;
+    border-radius: 60px;
+    animation: glow 2s infinite alternate;
+    z-index: -1;
 }
 
 .free-badge:hover {
@@ -570,7 +657,7 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     transform: translateY(50px);
     opacity: 0;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     backdrop-filter: blur(10px);
     border: 1px solid var(--quantum);
     z-index: 100;
@@ -614,18 +701,9 @@ body {
     }
     
     .collaborators-container {
-        overflow-x: auto;
         cursor: default;
-        -webkit-overflow-scrolling: touch;
     }
-    .collaborators-container::-webkit-scrollbar {
-        display: none;
-    }
-    .collaborators-container {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-    }
-
+    
     .collaborator {
         width: 85px;
         height: 85px;
@@ -654,35 +732,5 @@ body {
     
     .lang-btn {
         padding: 6px 15px;
-    }
-}
-@keyframes mobile-scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
-
-.collaborators-track.mobile-scroll {
-    animation: mobile-scroll 30s linear infinite;
-    width: max-content;
-}
-
-@keyframes mobile-scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
-
-.collaborators-track.mobile-scroll {
-    animation: mobile-scroll 40s linear infinite;
-    width: max-content;
-}
-
-@media (max-width: 768px) {
-    .collaborators-container {
-        overflow: hidden;
-        -webkit-overflow-scrolling: touch; 
-    }
-    
-    .collaborators-track.mobile-scroll {
-        animation-play-state: running;
     }
 }
