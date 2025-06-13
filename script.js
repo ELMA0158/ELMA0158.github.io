@@ -148,11 +148,15 @@ document.addEventListener('DOMContentLoaded', () => {
         let startX = 0;
         let currentX = 0;
         let startTranslateX = 0;
-        let rafId;
-        let isPaused = false;
-        let animationSpeed = 0.5;
-        let dragThreshold = 5;
         let hasDragged = false;
+        let isPaused = false;
+        let resumeTimer = null;
+        let rafId;
+        let scrollChunkWidth = 0;
+
+        const RESUME_DELAY = 500;
+        const ANIMATION_SPEED = 0.5;
+        const DRAG_THRESHOLD = 5;
 
         const setPosition = (x) => {
             track.style.transform = `translateX(${x}px)`;
@@ -160,9 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const autoScroll = () => {
             if (!isDragging && !isPaused) {
-                currentX -= animationSpeed;
-                const scrollChunkWidth = Math.floor(track.scrollWidth / 3);
-                if (Math.abs(currentX) >= scrollChunkWidth) {
+                currentX -= ANIMATION_SPEED;
+                if (currentX <= -2 * scrollChunkWidth) {
                     currentX += scrollChunkWidth;
                 }
                 setPosition(currentX);
@@ -170,55 +173,104 @@ document.addEventListener('DOMContentLoaded', () => {
             rafId = requestAnimationFrame(autoScroll);
         };
 
-        const onDragStart = (clientX) => {
-            hasDragged = false;
-            isDragging = true;
+        const pauseScrolling = () => {
             isPaused = true;
-            startX = clientX;
-            startTranslateX = currentX;
-            container.style.cursor = 'grabbing';
-            track.style.transition = 'none';
-            cancelAnimationFrame(rafId);
+            if (resumeTimer) {
+                clearTimeout(resumeTimer);
+            }
+        };
+
+        const resumeScrollingAfterDelay = () => {
+            if (isDragging) return;
+            clearTimeout(resumeTimer);
+            resumeTimer = setTimeout(() => {
+                isPaused = false;
+            }, RESUME_DELAY);
         };
         
         const onDragMove = (clientX) => {
             if (!isDragging) return;
             const walk = clientX - startX;
-            if(Math.abs(walk) > dragThreshold) {
+            if (Math.abs(walk) > DRAG_THRESHOLD) {
                 hasDragged = true;
             }
-            currentX = startTranslateX + walk;
+            let newX = startTranslateX + walk;
+            if (newX > -scrollChunkWidth) {
+                startTranslateX -= scrollChunkWidth;
+                newX = startTranslateX + walk;
+            }
+            if (newX < -2 * scrollChunkWidth) {
+                startTranslateX += scrollChunkWidth;
+                newX = startTranslateX + walk;
+            }
+            currentX = newX;
             setPosition(currentX);
         };
         
         const onDragEnd = () => {
             if (!isDragging) return;
             isDragging = false;
-            isPaused = false;
             container.style.cursor = 'grab';
             track.style.transition = '';
-            rafId = requestAnimationFrame(autoScroll);
+            
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
+            
+            resumeScrollingAfterDelay();
+            requestAnimationFrame(autoScroll);
         };
 
-        container.addEventListener('mousedown', (e) => onDragStart(e.pageX));
-        container.addEventListener('mousemove', (e) => onDragMove(e.pageX));
-        container.addEventListener('mouseup', onDragEnd);
-        container.addEventListener('mouseleave', onDragEnd);
+        const onDragStart = (clientX) => {
+            pauseScrolling();
+            hasDragged = false;
+            isDragging = true;
+            startX = clientX;
+            startTranslateX = currentX;
+            container.style.cursor = 'grabbing';
+            track.style.transition = 'none';
+            cancelAnimationFrame(rafId);
+            
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+            document.addEventListener('touchmove', onTouchMove, { passive: true });
+            document.addEventListener('touchend', onTouchEnd);
+        };
         
-        container.addEventListener('touchstart', (e) => onDragStart(e.touches[0].clientX), { passive: true });
-        container.addEventListener('touchmove', (e) => onDragMove(e.touches[0].clientX), { passive: true });
-        container.addEventListener('touchend', onDragEnd);
+        const onMouseMove = (e) => onDragMove(e.pageX);
+        const onMouseUp = () => onDragEnd();
+        const onTouchMove = (e) => onDragMove(e.touches[0].clientX);
+        const onTouchEnd = () => onDragEnd();
+        const onMouseDown = (e) => onDragStart(e.pageX);
+        const onTouchStart = (e) => onDragStart(e.touches[0].clientX);
+
+        const setupEventListeners = () => {
+            container.addEventListener('mouseenter', pauseScrolling);
+            container.addEventListener('mouseleave', resumeScrollingAfterDelay);
+            container.addEventListener('mousedown', onMouseDown);
+            container.addEventListener('touchstart', onTouchStart, { passive: true });
+            container.addEventListener('click', (e) => {
+                if (hasDragged) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            }, true);
+        };
         
-        container.addEventListener('click', (e) => {
-            if(hasDragged) {
-                e.stopPropagation();
+        const initialize = () => {
+            scrollChunkWidth = Math.floor(track.scrollWidth / 3);
+            if (scrollChunkWidth > 0) {
+                currentX = -scrollChunkWidth;
+                setPosition(currentX);
+                setupEventListeners();
+                autoScroll();
+            } else {
+                setTimeout(initialize, 100);
             }
-        }, true);
+        };
         
-        container.addEventListener('mouseenter', () => { isPaused = true; });
-        container.addEventListener('mouseleave', () => { if(!isDragging) isPaused = false; });
-        
-        autoScroll();
+        initialize();
         window.addEventListener('unload', () => cancelAnimationFrame(rafId));
     }
     
