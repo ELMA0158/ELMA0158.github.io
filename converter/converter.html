@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML Target Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="converter_style.css">
+</head>
+<body>
+    <div class="container">
+        <section class="hero">
+            <h1 class="title">YAML Target Generator</h1>
+            <p class="subtitle">将任何美化文件格式, 从文件中提取、转换并生成YAML格式</p>
+        </section>
+
+        <div class="converter-card">
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" hidden>
+                <div class="upload-icon">
+                    <i class="fas fa-file-arrow-up"></i>
+                </div>
+                <div class="upload-text" id="uploadText">
+                    拖拽文件到此处，或 <span>点击选择</span>
+                </div>
+            </div>
+
+            <div class="status-bar" id="statusBar">
+                <p class="status-text" id="statusText">请上传文件</p>
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="button-group">
+                <button class="action-btn" id="generateBtn" disabled>
+                    <i class="fas fa-cogs"></i> 生成 YAML
+                </button>
+                <button class="action-btn download-btn hidden" id="downloadBtn">
+                    <i class="fas fa-download"></i> 下载文件
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="converter_script.js"></script>
+</body>
+</html>
