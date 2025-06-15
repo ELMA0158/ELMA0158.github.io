@@ -159,5 +159,5 @@ function diff(o, m) {
         out.push([s, l]);
     }
     if (!out.length) return '';
-    return out.map(([s, l]) => '   - [' + s + ',' + l + ']\n').join('');
+    return 'search_targets:\n' + out.map(([s, l]) => '   - [' + s + ',' + l + ']\n').join('');
 }
