@@ -1,29 +1,118 @@
 @import url("../converter/converter_style.css");
 
-.upload-wrapper{
-    display:flex;
-    gap:20px;
-    flex-wrap:wrap;
-    justify-content:center;
-    align-items:center;
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 1rem;
+    box-sizing: border-box;
 }
-.upload-label{
-    font-size:.9rem;
-    margin-bottom:.6rem;
-    letter-spacing:.5px;
-    text-transform:uppercase;
-    opacity:.75;
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
 }
-@media (max-width:480px){
-    body{padding:1rem;display:flex;justify-content:center;align-items:center}
-    .container{width:100%;text-align:center}
-    .hero{padding:0 1rem}
-    .title{font-size:2rem;line-height:1.2}
-    .subtitle{font-size:.9rem}
-    .converter-card{width:100%;padding:1.25rem}
-    .upload-wrapper{flex-direction:column;gap:16px}
-    .upload-area{min-width:100%;padding:1.6rem .8rem}
-    .button-group{flex-direction:column;gap:12px}
-    .action-btn{width:100%;font-size:.9rem;padding:.7rem 0}
-    .status-bar{margin-top:1rem}
+
+.hero {
+    margin-bottom: 2rem;
+}
+
+.title {
+    font-size: 2.5rem;
+    line-height: 1.2;
+}
+
+.subtitle {
+    font-size: 1rem;
+    opacity: .85;
+}
+
+.converter-card {
+    width: 100%;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.upload-wrapper {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.upload-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 250px;
+}
+
+.upload-label {
+    font-size: .9rem;
+    margin-bottom: .6rem;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    opacity: .75;
+}
+
+.upload-area {
+    width: 100%;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+}
+
+.status-bar {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    min-width: 180px;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 1rem;
+    }
+    .title {
+        font-size: 2rem;
+    }
+    .subtitle {
+        font-size: .9rem;
+    }
+    .converter-card {
+        padding: 1.25rem;
+    }
+    .upload-wrapper {
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
+    }
+    .upload-box {
+        width: 100%;
+    }
+    .upload-area {
+        min-width: 100%;
+        padding: 1.6rem .8rem;
+    }
+    .button-group {
+        flex-direction: column;
+        width: 100%;
+    }
+    .action-btn {
+        width: 100%;
+        font-size: .9rem;
+        padding: .7rem 0;
+    }
 }
