@@ -1,0 +1,13 @@
+@import url("../converter/converter_style.css");
+
+.upload-wrapper{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;align-items:center}
+.upload-label{font-size:.9rem;margin-bottom:.6rem;letter-spacing:.5px;text-transform:uppercase;opacity:.75}
+
+/* mobile */
+@media (max-width:480px){
+ .title{font-size:2rem}
+ .converter-card{padding:1.5rem;width:95vw}
+ .upload-wrapper{flex-direction:column;gap:16px}
+ .upload-area{min-width:100%;padding:1.6rem .8rem}
+ .action-btn{font-size:.85rem;padding:.65rem 1rem}
+}

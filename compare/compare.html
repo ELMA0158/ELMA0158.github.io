@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>YAML Target Generator</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="compare_style.css">
+</head>
+<body>
+<div class="container">
+<section class="hero">
+<h1 class="title">YAML Target&nbsp;Generator</h1>
+<p class="subtitle">分别上传「原始 .dat」与「修改后 .dat」，一键生成差异 YAML</p>
+</section>
+<div class="converter-card">
+<div class="upload-wrapper">
+<div class="upload-area" id="uploadAreaOrig">
+<p class="upload-label">原始 .dat</p>
+<input type="file" id="fileInputOrig" hidden accept=".dat">
+<div class="upload-icon"><i class="fas fa-file-arrow-up"></i></div>
+<div class="upload-text" id="uploadTextOrig"><span>点击选择</span> 或拖拽文件</div>
+</div>
+<div class="upload-area" id="uploadAreaMod">
+<p class="upload-label">修改后 .dat</p>
+<input type="file" id="fileInputMod" hidden accept=".dat">
+<div class="upload-icon"><i class="fas fa-file-arrow-up"></i></div>
+<div class="upload-text" id="uploadTextMod"><span>点击选择</span> 或拖拽文件</div>
+</div>
+</div>
+<div class="status-bar">
+<p class="status-text" id="statusText">等待文件</p>
+<div class="progress-bar" id="progressBar"></div>
+</div>
+<div class="button-group">
+<button class="action-btn" id="generateBtn" disabled><i class="fas fa-cogs"></i> 生成 YAML</button>
+<a class="action-btn download-btn hidden" id="downloadBtn"><i class="fas fa-download"></i> 下载文件</a>
+</div>
+</div>
+</div>
+<script src="compare_script.js"></script>
+</body>
+</html>
