@@ -12,6 +12,9 @@ const dl = document.getElementById('downloadBtn');
 let fileO = null;
 let fileM = null;
 
+const originalTextO = txtO.innerHTML;
+const originalTextM = txtM.innerHTML;
+
 const setStat = (m, c = '') => {
     stat.textContent = m;
     stat.className = 'status-text' + (c ? ' ' + c : '');
@@ -21,7 +24,7 @@ const chk = () => {
     gen.disabled = !(fileO && fileM);
 };
 
-function bind(area, input, txt, isO) {
+function bind(area, input, txt, originalText, isO) {
     area.addEventListener('click', () => input.click());
     ['dragenter', 'dragover'].forEach(e => {
         area.addEventListener(e, v => {
@@ -37,35 +40,42 @@ function bind(area, input, txt, isO) {
     });
     area.addEventListener('drop', e => {
         const f = e.dataTransfer.files[0];
-        handle(f, isO, txt);
+        handle(f, txt, originalText, isO);
     });
     input.addEventListener('change', e => {
         const f = e.target.files[0];
-        handle(f, isO, txt);
+        if (f) {
+           handle(f, txt, originalText, isO);
+        }
+        input.value = '';
     });
 }
 
-function handle(f, isO, txt) {
+function handle(f, txt, originalText, isO) {
     if (!f || !f.name.endsWith('.dat')) {
         setStat('只接受 .dat 文件', 'error');
+        txt.innerHTML = originalText;
+        if (isO) { fileO = null; } 
+        else { fileM = null; }
+        chk();
         return;
     }
     if (isO) {
         fileO = f;
-        txt.textContent = f.name;
     } else {
         fileM = f;
-        txt.textContent = f.name;
     }
+    txt.textContent = f.name;
     setStat('文件已就绪', 'success');
     chk();
 }
 
-bind(areaO, inpO, txtO, true);
-bind(areaM, inpM, txtM, false);
+bind(areaO, inpO, txtO, originalTextO, true);
+bind(areaM, inpM, txtM, originalTextM, false);
 
 gen.addEventListener('click', async () => {
     gen.disabled = true;
+    dl.classList.add('hidden');
     setStat('解析中…');
     bar.classList.add('visible');
     try {
@@ -78,27 +88,28 @@ gen.addEventListener('click', async () => {
         const yml = diff(new Uint8Array(bo), new Uint8Array(bm));
         if (!yml) {
             setStat('无差异，未生成文件', 'success');
-            bar.classList.remove('visible');
-            chk();
-            return;
+        } else {
+            const blob = new Blob([yml], {
+                type: 'text/yaml;charset=utf-8'
+            });
+            const url = URL.createObjectURL(blob);
+            dl.href = url;
+            dl.download = 'diff.yaml';
+            dl.classList.remove('hidden');
+            setStat('生成完成', 'success');
         }
-        const blob = new Blob([yml], {
-            type: 'text/yaml;charset=utf-8'
-        });
-        const url = URL.createObjectURL(blob);
-        dl.href = url;
-        dl.download = 'diff.yaml';
-        dl.classList.remove('hidden');
-        setStat('生成完成', 'success');
     } catch (e) {
         setStat('错误：' + e.message, 'error');
     }
     bar.classList.remove('visible');
+    gen.disabled = false;
     chk();
 });
 
 dl.addEventListener('click', () => {
-    setTimeout(() => URL.revokeObjectURL(dl.href), 1000);
+    setTimeout(() => {
+        URL.revokeObjectURL(dl.href);
+    }, 100);
 });
 
 function find(b, p) {

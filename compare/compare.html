@@ -4,129 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YAML Target Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="compare_style.css">
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #e0e0e0;
-            margin: 0;
-        }
-        .container {
-            margin: 0 auto;
-        }
-        .title, .subtitle {
-            color: #ffffff;
-        }
-        .converter-card {
-            background-color: #2c2c2c;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 10px 20px rgba(0, 0, 0, 0.3);
-            border: 1px solid #444;
-        }
-        .upload-area {
-            border: 2px dashed #555;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: background-color .3s, border-color .3s;
-            background-color: #333;
-        }
-        .upload-area:hover, .upload-area.dragover {
-            background-color: #3f3f3f;
-            border-color: #777;
-        }
-        .upload-label {
-            color: #bbb;
-        }
-        .upload-icon {
-            font-size: 2.5rem;
-            color: #4a90e2;
-            margin-bottom: .5rem;
-        }
-        .upload-text {
-            color: #ccc;
-        }
-        .upload-text span {
-            color: #4a90e2;
-            font-weight: bold;
-        }
-        .status-bar {
-            width: 100%;
-            position: relative;
-        }
-        .status-text {
-            transition: color .3s;
-            color: #aaa;
-        }
-        .status-text.success {
-            color: #50e3c2;
-        }
-        .status-text.error {
-            color: #e35050;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background-color: #444;
-            border-radius: 2px;
-            overflow: hidden;
-            opacity: 0;
-            transition: opacity .5s;
-        }
-        .progress-bar.visible {
-            opacity: 1;
-        }
-        .progress-bar::before {
-            content: '';
-            display: block;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #4a90e2, #82caff);
-            animation: progress-animation 2s infinite linear;
-        }
-        @keyframes progress-animation {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        .action-btn {
-            background-color: #4a90e2;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            padding: .75rem 1.25rem;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color .3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .action-btn:hover:not(:disabled) {
-            background-color: #357abd;
-        }
-        .action-btn:disabled {
-            background-color: #555;
-            color: #888;
-            cursor: not-allowed;
-        }
-        .action-btn .fas {
-            margin-right: 8px;
-        }
-        .download-btn {
-            background-color: #50e3c2;
-            color: #1a1a1a;
-        }
-        .download-btn:hover {
-            background-color: #3bcba8;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
 </head>
 <body>
 <div class="container">
@@ -134,13 +16,14 @@
         <h1 class="title">YAML Target&nbsp;Generator</h1>
         <p class="subtitle">分别上传「原始 .dat」与「修改后 .dat」，一键生成差异 YAML</p>
     </section>
+
     <div class="converter-card">
         <div class="upload-wrapper">
             <div class="upload-box">
                 <p class="upload-label">原始 .dat</p>
                 <div class="upload-area" id="uploadAreaOrig">
                     <input type="file" id="fileInputOrig" hidden accept=".dat">
-                    <div class="upload-icon"><i class="fas fa-file-arrow-up"></i></div>
+                    <div class="upload-icon"><i class="fas fa-file-code"></i></div>
                     <div class="upload-text" id="uploadTextOrig"><span>点击选择</span> 或拖拽文件</div>
                 </div>
             </div>
@@ -148,21 +31,39 @@
                 <p class="upload-label">修改后 .dat</p>
                 <div class="upload-area" id="uploadAreaMod">
                     <input type="file" id="fileInputMod" hidden accept=".dat">
-                    <div class="upload-icon"><i class="fas fa-file-arrow-up"></i></div>
+                    <div class="upload-icon"><i class="fas fa-file-pen"></i></div>
                     <div class="upload-text" id="uploadTextMod"><span>点击选择</span> 或拖拽文件</div>
                 </div>
             </div>
         </div>
+
         <div class="status-bar">
             <p class="status-text" id="statusText">等待文件</p>
             <div class="progress-bar" id="progressBar"></div>
         </div>
+
         <div class="button-group">
             <button class="action-btn" id="generateBtn" disabled><i class="fas fa-cogs"></i> 生成 YAML</button>
             <a class="action-btn download-btn hidden" id="downloadBtn"><i class="fas fa-download"></i> 下载文件</a>
         </div>
     </div>
 </div>
+
+<script>
+    const card = document.querySelector('.converter-card');
+    card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--x', `${x}px`);
+        card.style.setProperty('--y', `${y}px`);
+    });
+
+    document.body.addEventListener('mousemove', e => {
+        document.documentElement.style.setProperty('--mouse-x', e.clientX + 'px');
+        document.documentElement.style.setProperty('--mouse-y', e.clientY + 'px');
+    });
+</script>
 <script src="compare_script.js"></script>
 </body>
 </html>
