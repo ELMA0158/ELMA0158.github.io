@@ -112,6 +112,7 @@ body {
     position: relative;
     display: inline-block;
     animation: float 6s ease-in-out infinite;
+    cursor: pointer;
 }
 
 .subtitle {
@@ -703,7 +704,142 @@ body {
     100% { box-shadow: 0 0 15px rgba(74, 61, 255, 0.4); }
 }
 
+.floating-nav {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+
+.floating-nav.visible {
+    visibility: visible;
+    opacity: 1;
+}
+
+@keyframes float-around {
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    25% { transform: translate(4px, 6px) rotate(3deg) scale(1.02); }
+    50% { transform: translate(-3px, -5px) rotate(-3deg) scale(1); }
+    75% { transform: translate(6px, -4px) rotate(5deg) scale(1.02); }
+    100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+}
+
+.floating-btn {
+    position: absolute;
+    z-index: 99;
+    background: rgba(30, 30, 60, 0.7);
+    backdrop-filter: blur(8px);
+    color: var(--photon);
+    border: 1px solid rgba(74, 61, 255, 0.4);
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: grab;
+    transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    user-select: none;
+    touch-action: none;
+    animation: float-around 16s ease-in-out infinite;
+    animation-play-state: running;
+}
+
+#converter-btn {
+    top: 30%;
+    left: 4%;
+}
+
+#compare-btn {
+    top: 60%;
+    left: 85%;
+    animation-direction: reverse;
+    animation-duration: 19s;
+}
+
+.floating-btn:hover {
+    transform: scale(1.15);
+    box-shadow: 0 8px 30px rgba(74, 61, 255, 0.5);
+    color: white;
+}
+
+.floating-btn.dragging {
+    cursor: grabbing;
+    z-index: 100;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    transform: scale(1.1);
+}
+
+#confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 999;
+}
+
+.confetti {
+    position: absolute;
+    background: var(--color);
+    opacity: 0;
+    animation: confetti-fall var(--duration, 4s) linear forwards;
+    animation-delay: var(--delay, 0s);
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-20vh) rotateZ(0deg);
+        opacity: 0;
+    }
+    10% {
+        transform: translateY(0vh) rotateZ(30deg);
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(105vh) rotateZ(720deg);
+        opacity: 0;
+    }
+}
+
+
+@media (max-width: 900px) {
+    #converter-btn {
+        left: 2%;
+    }
+    #compare-btn {
+        left: 80%;
+    }
+}
+
 @media (max-width: 768px) {
+    .floating-nav.visible {
+        display: block;
+    }
+    .floating-btn span {
+        display: none;
+    }
+    .floating-btn {
+        padding: 12px;
+        width: 48px;
+        height: 48px;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+    #converter-btn {
+        top: 25%;
+        left: 15px;
+    }
+    #compare-btn {
+        top: 70%;
+        left: calc(100vw - 63px);
+    }
+
     .hero {
         padding: 60px 0 40px;
     }

@@ -144,120 +144,70 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initCollaboratorScroller() {
-        let isDragging = false;
-        let startX = 0;
-        let currentX = 0;
-        let startTranslateX = 0;
-        let hasDragged = false;
-        let isPaused = false;
-        let resumeTimer = null;
-        let rafId;
-        let scrollChunkWidth = 0;
+        let isDragging = false, startX = 0, currentX = 0, startTranslateX = 0, hasDragged = false, isPaused = false, resumeTimer = null, rafId, scrollChunkWidth = 0;
+        const RESUME_DELAY = 1000, ANIMATION_SPEED = 0.5, DRAG_THRESHOLD = 5;
 
-        const RESUME_DELAY = 1000;
-        const ANIMATION_SPEED = 0.5;
-        const DRAG_THRESHOLD = 5;
-
-        const setPosition = (x) => {
-            track.style.transform = `translateX(${x}px)`;
-        };
-
+        const setPosition = (x) => { track.style.transform = `translateX(${x}px)`; };
         const autoScroll = () => {
             if (!isDragging && !isPaused) {
                 currentX -= ANIMATION_SPEED;
-                if (currentX <= -2 * scrollChunkWidth) {
-                    currentX += scrollChunkWidth;
-                }
+                if (currentX <= -2 * scrollChunkWidth) { currentX += scrollChunkWidth; }
                 setPosition(currentX);
             }
             rafId = requestAnimationFrame(autoScroll);
         };
-
-        const pauseScrolling = () => {
-            isPaused = true;
-            if (resumeTimer) {
-                clearTimeout(resumeTimer);
-            }
-        };
-
+        const pauseScrolling = () => { isPaused = true; if (resumeTimer) { clearTimeout(resumeTimer); } };
         const resumeScrollingAfterDelay = () => {
             if (isDragging) return;
             clearTimeout(resumeTimer);
-            resumeTimer = setTimeout(() => {
-                isPaused = false;
-            }, RESUME_DELAY);
+            resumeTimer = setTimeout(() => { isPaused = false; }, RESUME_DELAY);
         };
-        
         const onDragMove = (clientX) => {
             if (!isDragging) return;
             const walk = clientX - startX;
-            if (Math.abs(walk) > DRAG_THRESHOLD) {
-                hasDragged = true;
-            }
+            if (Math.abs(walk) > DRAG_THRESHOLD) { hasDragged = true; }
             let newX = startTranslateX + walk;
-            if (newX > -scrollChunkWidth) {
-                startTranslateX -= scrollChunkWidth;
-                newX = startTranslateX + walk;
-            }
-            if (newX < -2 * scrollChunkWidth) {
-                startTranslateX += scrollChunkWidth;
-                newX = startTranslateX + walk;
-            }
+            if (newX > -scrollChunkWidth) { startTranslateX -= scrollChunkWidth; newX = startTranslateX + walk; }
+            if (newX < -2 * scrollChunkWidth) { startTranslateX += scrollChunkWidth; newX = startTranslateX + walk; }
             currentX = newX;
             setPosition(currentX);
         };
-        
         const onDragEnd = () => {
             if (!isDragging) return;
             isDragging = false;
             container.style.cursor = 'grab';
             track.style.transition = '';
-            
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
             document.removeEventListener('touchmove', onTouchMove);
             document.removeEventListener('touchend', onTouchEnd);
-            
             resumeScrollingAfterDelay();
             requestAnimationFrame(autoScroll);
         };
-
         const onDragStart = (clientX) => {
             pauseScrolling();
-            hasDragged = false;
-            isDragging = true;
-            startX = clientX;
-            startTranslateX = currentX;
+            hasDragged = false; isDragging = true; startX = clientX; startTranslateX = currentX;
             container.style.cursor = 'grabbing';
             track.style.transition = 'none';
             cancelAnimationFrame(rafId);
-            
             document.addEventListener('mousemove', onMouseMove);
             document.addEventListener('mouseup', onMouseUp);
             document.addEventListener('touchmove', onTouchMove, { passive: true });
             document.addEventListener('touchend', onTouchEnd);
         };
-        
         const onMouseMove = (e) => onDragMove(e.pageX);
         const onMouseUp = () => onDragEnd();
         const onTouchMove = (e) => onDragMove(e.touches[0].clientX);
         const onTouchEnd = () => onDragEnd();
         const onMouseDown = (e) => onDragStart(e.pageX);
         const onTouchStart = (e) => onDragStart(e.touches[0].clientX);
-
         const setupEventListeners = () => {
             container.addEventListener('mouseenter', pauseScrolling);
             container.addEventListener('mouseleave', resumeScrollingAfterDelay);
             container.addEventListener('mousedown', onMouseDown);
             container.addEventListener('touchstart', onTouchStart, { passive: true });
-            container.addEventListener('click', (e) => {
-                if (hasDragged) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-            }, true);
+            container.addEventListener('click', (e) => { if (hasDragged) { e.preventDefault(); e.stopPropagation(); } }, true);
         };
-        
         const initialize = () => {
             scrollChunkWidth = Math.floor(track.scrollWidth / 3);
             if (scrollChunkWidth > 0) {
@@ -265,11 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 setPosition(currentX);
                 setupEventListeners();
                 autoScroll();
-            } else {
-                setTimeout(initialize, 100);
-            }
+            } else { setTimeout(initialize, 100); }
         };
-        
         initialize();
         window.addEventListener('unload', () => cancelAnimationFrame(rafId));
     }
@@ -277,10 +224,193 @@ document.addEventListener('DOMContentLoaded', () => {
     generateAvatars();
     initCollaboratorScroller();
     langBtn.addEventListener('click', toggleLanguage);
-    step1.addEventListener('click', () => {
-        window.open('https://github.com/hanxinhao000/ZeroTermux', '_blank');
+    step1.addEventListener('click', () => window.open('https://github.com/hanxinhao000/ZeroTermux', '_blank'));
+    step2.addEventListener('click', () => copyToClipboard(installCommand));
+
+    document.querySelectorAll('.floating-btn').forEach(btn => {
+        let isDragging = false;
+        let hasDragged = false;
+        let pos = { x: 0, y: 0 };
+        let velocity = { x: 0, y: 0 };
+        let lastPos = { x: 0, y: 0 };
+        let rafId;
+
+        const friction = 0.95;
+        const bounce = -0.7;
+        const minVelocity = 0.1;
+
+        const rect = btn.getBoundingClientRect();
+        pos.x = rect.left;
+        pos.y = rect.top;
+
+        btn.style.top = `${pos.y}px`;
+        btn.style.left = `${pos.x}px`;
+        btn.style.right = 'auto';
+        btn.style.bottom = 'auto';
+
+        function updatePosition() {
+            if (isDragging) return;
+
+            pos.x += velocity.x;
+            pos.y += velocity.y;
+
+            velocity.x *= friction;
+            velocity.y *= friction;
+
+            if (pos.x + btn.offsetWidth > document.documentElement.scrollWidth) {
+                pos.x = document.documentElement.scrollWidth - btn.offsetWidth;
+                velocity.x *= bounce;
+            }
+            if (pos.x < 0) {
+                pos.x = 0;
+                velocity.x *= bounce;
+            }
+            if (pos.y + btn.offsetHeight > document.documentElement.scrollHeight) {
+                pos.y = document.documentElement.scrollHeight - btn.offsetHeight;
+                velocity.y *= bounce;
+            }
+            if (pos.y < 0) {
+                pos.y = 0;
+                velocity.y *= bounce;
+            }
+
+            btn.style.left = `${pos.x}px`;
+            btn.style.top = `${pos.y}px`;
+            
+            if (Math.abs(velocity.x) > minVelocity || Math.abs(velocity.y) > minVelocity) {
+                rafId = requestAnimationFrame(updatePosition);
+            } else {
+                 btn.style.animationPlayState = 'running';
+            }
+        }
+
+        function startDrag(e) {
+            e.preventDefault();
+            isDragging = true;
+            hasDragged = false;
+            cancelAnimationFrame(rafId);
+            btn.classList.add('dragging');
+            btn.style.animationPlayState = 'paused';
+
+            const eventPos = e.type.includes('touch') ? e.touches[0] : e;
+            lastPos.x = eventPos.clientX;
+            lastPos.y = eventPos.clientY;
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchmove', onDrag, { passive: false });
+            document.addEventListener('touchend', endDrag);
+        }
+
+        function onDrag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            hasDragged = true;
+
+            const eventPos = e.type.includes('touch') ? e.touches[0] : e;
+            const currentPos = { x: eventPos.clientX, y: eventPos.clientY };
+
+            const delta = {
+                x: currentPos.x - lastPos.x,
+                y: currentPos.y - lastPos.y,
+            };
+
+            pos.x += delta.x;
+            pos.y += delta.y;
+            
+            velocity.x = delta.x;
+            velocity.y = delta.y;
+            
+            lastPos = currentPos;
+
+            btn.style.left = `${pos.x}px`;
+            btn.style.top = `${pos.y}px`;
+        }
+
+        function endDrag() {
+            if (!isDragging) return;
+            isDragging = false;
+            btn.classList.remove('dragging');
+            
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchmove', onDrag);
+            document.removeEventListener('touchend', endDrag);
+            
+            rafId = requestAnimationFrame(updatePosition);
+        }
+        
+        btn.addEventListener('click', (e) => {
+            if (hasDragged) {
+                e.preventDefault();
+            }
+        });
+
+        btn.addEventListener('mousedown', startDrag);
+        btn.addEventListener('touchstart', startDrag, { passive: false });
+        
+        btn.addEventListener('mouseenter', () => {
+            if (!isDragging) btn.style.animationPlayState = 'paused';
+        });
+
+        btn.addEventListener('mouseleave', () => {
+            if (!isDragging && Math.abs(velocity.x) < minVelocity && Math.abs(velocity.y) < minVelocity) {
+                 btn.style.animationPlayState = 'running';
+            }
+        });
+
+        rafId = requestAnimationFrame(updatePosition);
     });
-    step2.addEventListener('click', () => {
-        copyToClipboard(installCommand);
+
+    const title = document.querySelector('.title');
+    const floatingNav = document.querySelector('.floating-nav');
+    let clickCount = 0;
+    let clickTimer = null;
+
+    title.addEventListener('click', () => {
+        clickCount++;
+
+        if (clickTimer) {
+            clearTimeout(clickTimer);
+        }
+
+        clickTimer = setTimeout(() => {
+            clickCount = 0;
+        }, 800);
+
+        if (clickCount === 3) {
+            clickCount = 0;
+            if (floatingNav.classList.contains('visible')) return;
+            triggerEasterEgg();
+        }
     });
+
+    function triggerEasterEgg() {
+        const confettiContainer = document.getElementById('confetti-container');
+        if (!confettiContainer) return;
+
+        const colors = ['var(--quantum)', 'var(--pulse)', 'var(--photon)'];
+        const confettiCount = 150;
+
+        for (let i = 0; i < confettiCount; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.setProperty('--duration', `${Math.random() * 2 + 3}s`);
+            confetti.style.setProperty('--delay', `${Math.random() * 2}s`);
+            confetti.style.width = `${Math.random() * 8 + 5}px`;
+            confetti.style.height = `${Math.random() * 15 + 8}px`;
+            
+            confetti.addEventListener('animationend', function() {
+                this.remove();
+            });
+
+            confettiContainer.appendChild(confetti);
+        }
+
+        setTimeout(() => {
+            floatingNav.classList.add('visible');
+        }, 500);
+    }
 });
