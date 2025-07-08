@@ -227,140 +227,151 @@ document.addEventListener('DOMContentLoaded', () => {
     step1.addEventListener('click', () => window.open('https://github.com/hanxinhao000/ZeroTermux', '_blank'));
     step2.addEventListener('click', () => copyToClipboard(installCommand));
 
-    document.querySelectorAll('.floating-btn').forEach(btn => {
-        let isDragging = false;
-        let hasDragged = false;
-        let pos = { x: 0, y: 0 };
-        let velocity = { x: 0, y: 0 };
-        let lastPos = { x: 0, y: 0 };
-        let rafId;
+    const buttonElements = Array.from(document.querySelectorAll('.floating-btn'));
+    const buttons = [];
 
-        const friction = 0.95;
-        const bounce = -0.7;
-        const minVelocity = 0.1;
+    if (buttonElements.length > 0) {
+        buttonElements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            buttons.push({
+                el: el,
+                pos: { x: rect.left + window.scrollX, y: rect.top + window.scrollY },
+                velocity: { x: (Math.random() - 0.5) * 2, y: (Math.random() - 0.5) * 2 },
+                radius: el.offsetWidth / 2,
+                mass: 1,
+                isDragging: false,
+                hasDragged: false,
+                lastPos: { x: 0, y: 0 }
+            });
+        });
 
-        const rect = btn.getBoundingClientRect();
-        pos.x = rect.left;
-        pos.y = rect.top;
+        buttons.forEach(btnObj => {
+            btnObj.el.style.top = `${btnObj.pos.y}px`;
+            btnObj.el.style.left = `${btnObj.pos.x}px`;
+            btnObj.el.style.right = 'auto';
+            btnObj.el.style.bottom = 'auto';
 
-        btn.style.top = `${pos.y}px`;
-        btn.style.left = `${pos.x}px`;
-        btn.style.right = 'auto';
-        btn.style.bottom = 'auto';
-
-        function updatePosition() {
-            if (isDragging) return;
-
-            pos.x += velocity.x;
-            pos.y += velocity.y;
-
-            velocity.x *= friction;
-            velocity.y *= friction;
-
-            if (pos.x + btn.offsetWidth > document.documentElement.scrollWidth) {
-                pos.x = document.documentElement.scrollWidth - btn.offsetWidth;
-                velocity.x *= bounce;
-            }
-            if (pos.x < 0) {
-                pos.x = 0;
-                velocity.x *= bounce;
-            }
-            if (pos.y + btn.offsetHeight > document.documentElement.scrollHeight) {
-                pos.y = document.documentElement.scrollHeight - btn.offsetHeight;
-                velocity.y *= bounce;
-            }
-            if (pos.y < 0) {
-                pos.y = 0;
-                velocity.y *= bounce;
-            }
-
-            btn.style.left = `${pos.x}px`;
-            btn.style.top = `${pos.y}px`;
-            
-            if (Math.abs(velocity.x) > minVelocity || Math.abs(velocity.y) > minVelocity) {
-                rafId = requestAnimationFrame(updatePosition);
-            } else {
-                 btn.style.animationPlayState = 'running';
-            }
-        }
-
-        function startDrag(e) {
-            e.preventDefault();
-            isDragging = true;
-            hasDragged = false;
-            cancelAnimationFrame(rafId);
-            btn.classList.add('dragging');
-            btn.style.animationPlayState = 'paused';
-
-            const eventPos = e.type.includes('touch') ? e.touches[0] : e;
-            lastPos.x = eventPos.clientX;
-            lastPos.y = eventPos.clientY;
-
-            document.addEventListener('mousemove', onDrag);
-            document.addEventListener('mouseup', endDrag);
-            document.addEventListener('touchmove', onDrag, { passive: false });
-            document.addEventListener('touchend', endDrag);
-        }
-
-        function onDrag(e) {
-            if (!isDragging) return;
-            e.preventDefault();
-            hasDragged = true;
-
-            const eventPos = e.type.includes('touch') ? e.touches[0] : e;
-            const currentPos = { x: eventPos.clientX, y: eventPos.clientY };
-
-            const delta = {
-                x: currentPos.x - lastPos.x,
-                y: currentPos.y - lastPos.y,
+            const startDrag = (e) => {
+                if (e.type === 'mousedown') e.preventDefault();
+                btnObj.isDragging = true;
+                btnObj.hasDragged = false;
+                btnObj.el.classList.add('dragging');
+                btnObj.el.style.animationPlayState = 'paused';
+                const eventPos = e.type.includes('touch') ? e.touches[0] : e;
+                btnObj.lastPos = { x: eventPos.clientX, y: eventPos.clientY };
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchmove', onDrag, { passive: false });
+                document.addEventListener('touchend', endDrag);
             };
 
-            pos.x += delta.x;
-            pos.y += delta.y;
-            
-            velocity.x = delta.x;
-            velocity.y = delta.y;
-            
-            lastPos = currentPos;
-
-            btn.style.left = `${pos.x}px`;
-            btn.style.top = `${pos.y}px`;
-        }
-
-        function endDrag() {
-            if (!isDragging) return;
-            isDragging = false;
-            btn.classList.remove('dragging');
-            
-            document.removeEventListener('mousemove', onDrag);
-            document.removeEventListener('mouseup', endDrag);
-            document.removeEventListener('touchmove', onDrag);
-            document.removeEventListener('touchend', endDrag);
-            
-            rafId = requestAnimationFrame(updatePosition);
-        }
-        
-        btn.addEventListener('click', (e) => {
-            if (hasDragged) {
+            const onDrag = (e) => {
+                if (!btnObj.isDragging) return;
                 e.preventDefault();
-            }
+                btnObj.hasDragged = true;
+                const eventPos = e.type.includes('touch') ? e.touches[0] : e;
+                const currentPos = { x: eventPos.clientX, y: eventPos.clientY };
+                const delta = { x: currentPos.x - btnObj.lastPos.x, y: currentPos.y - btnObj.lastPos.y };
+                btnObj.pos.x += delta.x;
+                btnObj.pos.y += delta.y;
+                btnObj.velocity = { x: delta.x, y: delta.y };
+                btnObj.lastPos = currentPos;
+            };
+
+            const endDrag = () => {
+                if (!btnObj.isDragging) return;
+                btnObj.isDragging = false;
+                btnObj.el.classList.remove('dragging');
+                document.removeEventListener('mousemove', onDrag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchmove', onDrag);
+                document.removeEventListener('touchend', endDrag);
+            };
+
+            btnObj.el.addEventListener('click', (e) => {
+                if (btnObj.hasDragged) e.preventDefault();
+            });
+
+            btnObj.el.addEventListener('mousedown', startDrag);
+            btnObj.el.addEventListener('touchstart', startDrag, { passive: true });
         });
 
-        btn.addEventListener('mousedown', startDrag);
-        btn.addEventListener('touchstart', startDrag, { passive: false });
+        const mainLoop = () => {
+            buttons.forEach(btnObj => {
+                if (!btnObj.isDragging) {
+                    btnObj.pos.x += btnObj.velocity.x;
+                    btnObj.pos.y += btnObj.velocity.y;
+                    btnObj.velocity.x *= 0.98;
+                    btnObj.velocity.y *= 0.98;
+                }
+
+                const docWidth = document.documentElement.scrollWidth;
+                const docHeight = document.documentElement.scrollHeight;
+                if (btnObj.pos.x < 0 || btnObj.pos.x + btnObj.el.offsetWidth > docWidth) {
+                    btnObj.velocity.x *= -0.7;
+                    btnObj.pos.x = Math.max(0, Math.min(btnObj.pos.x, docWidth - btnObj.el.offsetWidth));
+                }
+                if (btnObj.pos.y < 0 || btnObj.pos.y + btnObj.el.offsetHeight > docHeight) {
+                    btnObj.velocity.y *= -0.7;
+                    btnObj.pos.y = Math.max(0, Math.min(btnObj.pos.y, docHeight - btnObj.el.offsetHeight));
+                }
+
+                btnObj.el.style.left = `${btnObj.pos.x}px`;
+                btnObj.el.style.top = `${btnObj.pos.y}px`;
+            });
+
+            for (let i = 0; i < buttons.length; i++) {
+                for (let j = i + 1; j < buttons.length; j++) {
+                    resolveCollision(buttons[i], buttons[j]);
+                }
+            }
+
+            requestAnimationFrame(mainLoop);
+        };
         
-        btn.addEventListener('mouseenter', () => {
-            if (!isDragging) btn.style.animationPlayState = 'paused';
-        });
+        mainLoop();
+    }
+    
+    function resolveCollision(b1, b2) {
+        if (b1.isDragging && b2.isDragging) return;
 
-        btn.addEventListener('mouseleave', () => {
-            if (!isDragging && Math.abs(velocity.x) < minVelocity && Math.abs(velocity.y) < minVelocity) {
-                 btn.style.animationPlayState = 'running';
+        const center1 = { x: b1.pos.x + b1.radius, y: b1.pos.y + b1.radius };
+        const center2 = { x: b2.pos.x + b2.radius, y: b2.pos.y + b2.radius };
+        
+        const dx = center2.x - center1.x;
+        const dy = center2.y - center1.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const minDist = b1.radius + b2.radius;
+
+        if (dist < minDist) {
+            const overlap = minDist - dist;
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            if (!b1.isDragging) {
+                b1.pos.x -= overlap / 2 * nx;
+                b1.pos.y -= overlap / 2 * ny;
             }
-        });
+            if (!b2.isDragging) {
+                b2.pos.x += overlap / 2 * nx;
+                b2.pos.y += overlap / 2 * ny;
+            }
 
-        rafId = requestAnimationFrame(updatePosition);
-    });
+            const kx = b1.velocity.x - b2.velocity.x;
+            const ky = b1.velocity.y - b2.velocity.y;
+            const p = 2.0 * (nx * kx + ny * ky) / (b1.mass + b2.mass);
+            
+            if (!b1.isDragging) {
+                b1.velocity.x -= p * b2.mass * nx;
+                b1.velocity.y -= p * b2.mass * ny;
+            }
+            if (!b2.isDragging) {
+                b2.velocity.x += p * b1.mass * nx;
+                b2.velocity.y += p * b1.mass * ny;
+            }
+        }
+    }
+
 
     const title = document.querySelector('.title');
     const floatingNav = document.querySelector('.floating-nav');
@@ -369,15 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     title.addEventListener('click', () => {
         clickCount++;
-
-        if (clickTimer) {
-            clearTimeout(clickTimer);
-        }
-
-        clickTimer = setTimeout(() => {
-            clickCount = 0;
-        }, 800);
-
+        if (clickTimer) clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => { clickCount = 0; }, 800);
         if (clickCount === 3) {
             clickCount = 0;
             if (floatingNav.classList.contains('visible')) return;
@@ -388,10 +392,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function triggerEasterEgg() {
         const confettiContainer = document.getElementById('confetti-container');
         if (!confettiContainer) return;
-
         const colors = ['var(--quantum)', 'var(--pulse)', 'var(--photon)'];
         const confettiCount = 150;
-
         for (let i = 0; i < confettiCount; i++) {
             const confetti = document.createElement('div');
             confetti.classList.add('confetti');
@@ -401,16 +403,9 @@ document.addEventListener('DOMContentLoaded', () => {
             confetti.style.setProperty('--delay', `${Math.random() * 2}s`);
             confetti.style.width = `${Math.random() * 8 + 5}px`;
             confetti.style.height = `${Math.random() * 15 + 8}px`;
-            
-            confetti.addEventListener('animationend', function() {
-                this.remove();
-            });
-
+            confetti.addEventListener('animationend', function() { this.remove(); });
             confettiContainer.appendChild(confetti);
         }
-
-        setTimeout(() => {
-            floatingNav.classList.add('visible');
-        }, 500);
+        setTimeout(() => { floatingNav.classList.add('visible'); }, 500);
     }
 });

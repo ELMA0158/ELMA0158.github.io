@@ -731,7 +731,6 @@ body {
     color: var(--photon);
     border: 1px solid rgba(74, 61, 255, 0.4);
     border-radius: 50px;
-    padding: 10px 20px;
     font-weight: 600;
     cursor: grab;
     transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.3s ease;
@@ -744,6 +743,14 @@ body {
     touch-action: none;
     animation: float-around 16s ease-in-out infinite;
     animation-play-state: running;
+    padding: 12px;
+    width: 48px;
+    height: 48px;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+.floating-btn span {
+    display: none;
 }
 
 #converter-btn {
@@ -820,16 +827,6 @@ body {
 @media (max-width: 768px) {
     .floating-nav.visible {
         display: block;
-    }
-    .floating-btn span {
-        display: none;
-    }
-    .floating-btn {
-        padding: 12px;
-        width: 48px;
-        height: 48px;
-        justify-content: center;
-        font-size: 1.1rem;
     }
     #converter-btn {
         top: 25%;
